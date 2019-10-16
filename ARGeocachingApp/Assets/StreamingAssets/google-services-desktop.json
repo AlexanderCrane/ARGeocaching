@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "633246443452",
+    "firebase_url": "https://argeocache-1570766257603.firebaseio.com",
+    "project_id": "argeocache-1570766257603",
+    "storage_bucket": "argeocache-1570766257603.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633246443452:android:8baa5018d9e74925f66db9",
+        "android_client_info": {
+          "package_name": "com.ParadoxParadigm.ARGeocache"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633246443452-vukr67frqkek3f96vmim4oivdls7m41k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQkFc4Rj-oNu-HO4R7n6F1CsoTsoL1wJc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "633246443452-vukr67frqkek3f96vmim4oivdls7m41k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
