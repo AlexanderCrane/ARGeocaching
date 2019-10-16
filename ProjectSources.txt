@@ -1,0 +1,11 @@
+Project sources:
+
+3D GPS Map & Buildings - Mapbox
+
+AR Image Recognition - Vuforia
+
+Woodland Fantasy Song - Matthew Pablo http://www.matthewpablo.com/ (found on OpenGameArt.Org)
+
+Closed Treasure Chest - Mastahcez on OpenGameArt.Org (https://opengameart.org/content/treasure-chest-3)
+
+(Firebase?)
