@@ -102,7 +102,7 @@ public class TreasureManager : Singleton<TreasureManager> {
 
         print("Latitude and Longitude: " + t.LatLong);
 
-        t.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 10, playerLocation.z);
+        t.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
         if(t.LatLong.x != -1 && t.LatLong.y != -1){
           treasurePoints.Add(t);
