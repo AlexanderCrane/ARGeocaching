@@ -21,7 +21,7 @@ public class TreasureManager : Singleton<TreasureManager> {
   }
 
   [SerializeField] private List<TreasureObj> treasurePoints = new List<TreasureObj>(); //NOTE: for LatLong, latitude = x-coordinate, longitude = y-coordinate
-  //[SerializeField] private List<GameObject> treasures;
+  public List<GameObject> treasureObjs;
   private string path;
 
   public GameObject player;
@@ -52,13 +52,14 @@ public class TreasureManager : Singleton<TreasureManager> {
 
       print("Latitude and Longitude: " + e.LatLong);
 
-      e.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 5, playerLocation.z);
+      e.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
       if(e.LatLong.x != -1 && e.LatLong.y != -1){
         treasurePoints.Add(e);
       }
 
-      Instantiate(treasure, e.gameCoords, Quaternion.Euler(-90,0,0));
+      GameObject tE = Instantiate(treasure, e.gameCoords, Quaternion.Euler(-90,0,0));
+      treasureObjs.Add(tE);
       yield break;
 
     #endif
@@ -108,7 +109,8 @@ public class TreasureManager : Singleton<TreasureManager> {
           treasurePoints.Add(t);
         }
 
-        Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+        GameObject tA = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+        treasureObjs.Add(tA);
     }
   }
 
