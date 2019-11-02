@@ -71,22 +71,23 @@ public class TreasureManager : Singleton<TreasureManager> {
           Console.WriteLine("{0} Exception caught.", ex);
           return;
       }
+      StartCoroutine(waitToPopulateTreasures(x,y));
 
-      TreasureObj t;
-      t.LatLong = new Vector2(x, y);
+      // TreasureObj t;
+      // t.LatLong = new Vector2(x, y);
 
-      var map = LocationProviderFactory.Instance.mapManager;
-      Vector3 loc = map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(x,y));
-      loc.y += 15;
+      // var map = LocationProviderFactory.Instance.mapManager;
+      // Vector3 loc = map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(x,y));
+      // loc.y += 15;
 
-      t.gameCoords = loc;
-      t.found = false;
+      // t.gameCoords = loc;
+      // t.found = false;
 
-      //instantiate treasure chests based on coordinates
-      t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
-      treasurePoints.Add(t);
+      // //instantiate treasure chests based on coordinates
+      // t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+      // treasurePoints.Add(t);
 
-      print("LATLONG: " + t.LatLong);
+      // print("LATLONG: " + t.LatLong);
       
     }
 
@@ -206,7 +207,24 @@ public class TreasureManager : Singleton<TreasureManager> {
     return locations;
   }
 
-  IEnumerator waitToPopulateTreasures(){
-    
+  IEnumerator waitToPopulateTreasures(float x, float y){
+    yield return new WaitForSeconds(5);
+
+    TreasureObj t;
+    t.LatLong = new Vector2(x, y);
+
+    var map = LocationProviderFactory.Instance.mapManager;
+    Vector3 loc = map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(x,y));
+    loc.y += 15;
+
+    t.gameCoords = loc;
+    t.found = false;
+
+    //instantiate treasure chests based on coordinates
+    t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+    treasurePoints.Add(t);
+
+    print("LATLONG: " + t.LatLong);
+
   }
 }
