@@ -4,6 +4,7 @@ using UnityEngine;
 using Mapbox.Unity.Location;
 using Mapbox.Unity.Map;
 using System.IO;
+using System;
 
 /*
 To convert from latitude and longitude to game coordinates I think you use these:
@@ -23,7 +24,6 @@ public class TreasureManager : Singleton<TreasureManager> {
   }
 
   public List<TreasureObj> treasurePoints = new List<TreasureObj>(); //NOTE: for LatLong, latitude = x-coordinate, longitude = y-coordinate
-  // public List<GameObject> treasureGameObjs;
   private string path;
 
   public GameObject player;
@@ -35,11 +35,62 @@ public class TreasureManager : Singleton<TreasureManager> {
   void Start()
   {
     path = string.Concat(Application.persistentDataPath, "/coordinates.txt");
-      //call to pull data from database
+    if (!File.Exists(path))
+    {
+      File.CreateText(path);
+    }
+
+      //call to pull data from database/local file
+    string locationsFull = ReadTreasureLocationsFromFile();
+    string[] splitString = locationsFull.Split('\n');
+
+    string temp = "";
+    foreach(string s in splitString){
+      if(s == splitString[0]){
+        continue;
+      }
+      print("UNSPLIT STRING: " + s);
+      temp = s;
+      if (temp.StartsWith ("(") && temp.EndsWith (")")) {
+             temp = temp.Substring(1, s.Length-2);
+      }
+      print("REMOVED PARENTHESIS: " + temp);
+
+      string[] coords = temp.Split(',');
+
+      float x = 0;
+      float y = 0;
+
+      try
+      {
+        x=System.Convert.ToSingle(coords[0]);
+        y=System.Convert.ToSingle(coords[1]);
+      }
+      catch (Exception ex)
+      {
+          Console.WriteLine("{0} Exception caught.", ex);
+          return;
+      }
+
+      TreasureObj t;
+      t.LatLong = new Vector2(x, y);
+
+      var map = LocationProviderFactory.Instance.mapManager;
+      Vector3 loc = map.GeoToWorldPosition(new Mapbox.Utils.Vector2d(x,y));
+      loc.y += 15;
+
+      t.gameCoords = loc;
+      t.found = false;
 
       //instantiate treasure chests based on coordinates
+      t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+      treasurePoints.Add(t);
 
-      //toggle visibility of not found treasure chests
+      print("LATLONG: " + t.LatLong);
+      
+    }
+
+    //toggle visibility of not found treasure chests - INCOMPLETE
 
   }
 
@@ -57,7 +108,6 @@ public class TreasureManager : Singleton<TreasureManager> {
       e.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
       e.treasure = Instantiate(treasure, e.gameCoords, Quaternion.Euler(-90,0,0));
-      // treasureGameObjs.Add(e.treasure);
       treasurePoints.Add(e);
       yield break;
 
@@ -105,7 +155,6 @@ public class TreasureManager : Singleton<TreasureManager> {
         t.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
         t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
-        // treasureGameObjs.Add(t.treasure);
         treasurePoints.Add(t);   
     }
   }
@@ -137,8 +186,9 @@ public class TreasureManager : Singleton<TreasureManager> {
     ReadTreasureLocationsFromFile();
   }
 
-  void ReadTreasureLocationsFromFile()
+  string ReadTreasureLocationsFromFile()
   {
+    string locations = "";
     treasurePoints.Clear();
     StreamReader reader = new StreamReader(path);
 
@@ -146,12 +196,17 @@ public class TreasureManager : Singleton<TreasureManager> {
     while(text != null)
     {
         text = reader.ReadLine();
-        //Console.WriteLine(text);
         if(text != null)
         {
-          print ("TEST " + text);
+          locations = locations + "\n" + text;
+          print (locations);
         }
     }
     reader.Close();
+    return locations;
+  }
+
+  IEnumerator waitToPopulateTreasures(){
+    
   }
 }
