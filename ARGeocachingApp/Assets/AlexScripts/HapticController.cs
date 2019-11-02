@@ -2,41 +2,69 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HapticController : MonoBehaviour {
+public class HapticController : Singleton<HapticController> {
 
-// #if UNITY_ANDROID && !UNITY_EDITOR
-//     // private static readonly AndroidJavaObject Vibrator =
-//     //     new AndroidJavaClass("com.unity3d.player.UnityPlayer")// Get the Unity Player.
-//     //     .GetStatic<AndroidJavaObject>("currentActivity")// Get the Current Activity from the Unity Player.
-//     //     .Call<AndroidJavaObject>("getSystemService", "vibrator");// Then get the Vibration Service from the Current Activity.
-// #endif
+    public static AndroidJavaClass unityPlayer = null;
+    public static AndroidJavaObject currentActivity = null;
+    public static AndroidJavaObject vibrator = null;
 
-    List<GameObject> treasures;
+    List<TreasureManager.TreasureObj> treasures;
     public TreasureManager treasureManager;
     bool isVibrating;
+
+    bool isScanning;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize(){
+    #if UNITY_ANDROID && !UNITY_EDITOR
+        if (Application.platform == RuntimePlatform.Android) {
+            unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
+            }
+    #endif
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        treasures = treasureManager.GetComponent<TreasureManager>().treasureObjs;
+        Handheld.Vibrate(); // This tricks Unity into giving vibration priviledges.
+        treasures = treasureManager.GetComponent<TreasureManager>().treasurePoints;
     }
 
-    // static void KyVibrator()
-    // {
-    //     // Trick Unity into giving the App vibration permission when it builds.
-    //     // This check will always be false, but the compiler doesn't know that.
-    //     if (Application.isEditor) Handheld.Vibrate();
-    // }
+    public void setScanning(){
+        isScanning = !isScanning;
 
+        print("isScanning: " + isScanning);
+
+        if(!isScanning){
+            isVibrating = false;
+            Cancel();
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if(!isVibrating && getClosestTreasure() <= 300.0f){
+        if(isScanning && !isVibrating && getClosestTreasure() <= 30.0f){
             isVibrating = true;
             print("vibrating");
+            long[] la = {0, 400, 200, 400};
+            Vibrate(la, 1);
             
-            // Vibrate(200);
-            Handheld.Vibrate();
+        } else if(isScanning && !isVibrating && getClosestTreasure() <= 50.0f){
+            isVibrating = true;
+            print("vibrating");
+            long[] la = {0, 600, 400, 600};
+            Vibrate(la, 1);
+
+        } else if(isScanning && !isVibrating && getClosestTreasure() <= 70.0f){
+            isVibrating = true;
+            print("vibrating");
+            long[] la = {0, 1200, 600, 1200};
+            Vibrate(la, 1);
+        } else if(isScanning && isVibrating && getClosestTreasure() > 70.0f) {
+            isVibrating = false;
         }
     }
 
@@ -45,27 +73,55 @@ public class HapticController : MonoBehaviour {
         float minDist = Mathf.Infinity;
         Vector3 currentPos = transform.position;
 
-        foreach(GameObject t in treasures){
-            float dist = Vector3.Distance(t.GetComponent<Transform>().position, currentPos);
+        foreach(TreasureManager.TreasureObj t in treasures){
+            float dist = Vector3.Distance(t.treasure.GetComponent<Transform>().position, currentPos);
             if (dist < minDist)
             {
-                tMin = t;
+                tMin = t.treasure;
                 minDist = dist;
             }
         }
         return minDist;
     }
 
-// #if UNITY_ANDROID && !UNITY_EDITOR
-//     // public static void Vibrate(long milliseconds)
-//     // {
-//     //     print("vibrating");
-//     //     Vibrator.Call("vibrate", milliseconds);
-//     // }
+    public static void Vibrate(long milliseconds)
+    {
+        if(isAndroid() && vibrator != null){
+            print("vibrating");
+            vibrator.Call("vibrate", milliseconds);
+        } else {
+            Handheld.Vibrate();
+        }
+    }
 
-//     // public static void Vibrate(long[] pattern, int repeat)
-//     // {
-//     //     Vibrator.Call("vibrate", pattern, repeat);
-//     // }
-// #endif
+    public static void Vibrate(long[] pattern, int repeat)
+    {
+        if(isAndroid() && vibrator != null){
+            print("vibrating");
+            vibrator.Call("vibrate", pattern, repeat);
+        } else {
+            Handheld.Vibrate();
+        }
+    }
+
+    public static bool HasVibrator()
+    {
+        return vibrator.Call<bool>("hasVibrator");
+    }
+
+    public static void Cancel()
+    {
+        if (isAndroid()){
+            vibrator.Call("cancel");
+        }
+    }
+    
+    private static bool isAndroid()
+    {
+    #if UNITY_ANDROID && !UNITY_EDITOR
+	    return true;
+    #else
+        return false;
+    #endif
+    }
 }

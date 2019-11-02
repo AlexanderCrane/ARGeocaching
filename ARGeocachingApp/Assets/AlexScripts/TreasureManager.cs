@@ -13,15 +13,17 @@ transform.localPosition = map.GeoToWorldPosition(LocationProvider.CurrentLocatio
 
 public class TreasureManager : Singleton<TreasureManager> {
 
-  struct TreasureObj
+  public struct TreasureObj
   {
       public Vector3 gameCoords;
       public Vector2 LatLong;
       public bool found;
+      
+      public GameObject treasure;
   }
 
-  [SerializeField] private List<TreasureObj> treasurePoints = new List<TreasureObj>(); //NOTE: for LatLong, latitude = x-coordinate, longitude = y-coordinate
-  public List<GameObject> treasureObjs;
+  public List<TreasureObj> treasurePoints = new List<TreasureObj>(); //NOTE: for LatLong, latitude = x-coordinate, longitude = y-coordinate
+  // public List<GameObject> treasureGameObjs;
   private string path;
 
   public GameObject player;
@@ -54,12 +56,9 @@ public class TreasureManager : Singleton<TreasureManager> {
 
       e.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
-      if(e.LatLong.x != -1 && e.LatLong.y != -1){
-        treasurePoints.Add(e);
-      }
-
-      GameObject tE = Instantiate(treasure, e.gameCoords, Quaternion.Euler(-90,0,0));
-      treasureObjs.Add(tE);
+      e.treasure = Instantiate(treasure, e.gameCoords, Quaternion.Euler(-90,0,0));
+      // treasureGameObjs.Add(e.treasure);
+      treasurePoints.Add(e);
       yield break;
 
     #endif
@@ -105,12 +104,9 @@ public class TreasureManager : Singleton<TreasureManager> {
 
         t.gameCoords = new Vector3(playerLocation.x, playerLocation.y + 15, playerLocation.z);
 
-        if(t.LatLong.x != -1 && t.LatLong.y != -1){
-          treasurePoints.Add(t);
-        }
-
-        GameObject tA = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
-        treasureObjs.Add(tA);
+        t.treasure = Instantiate(treasure, t.gameCoords, Quaternion.Euler(-90,0,0));
+        // treasureGameObjs.Add(t.treasure);
+        treasurePoints.Add(t);   
     }
   }
 
